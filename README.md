@@ -39,8 +39,6 @@
 
 感谢 [injoyai/tdx](https://github.com/injoyai/tdx) 及 [rainx/pytdx](https://github.com/rainx/pytdx) 的启发。
 
-v3.3.2 新增全市场资讯及批量缺失代码处理。详见 [发布说明](docs/releases/v3.3.2.md) 与 [批量缺失处理](docs/BATCH_MISSING.md)。
-
 ## 功能地图
 
 eltdx 默认按“想拿什么数据”组织入口。普通调用优先使用模块化 API 和 Helpers；需要核对底层字段时，再对照 `7709` 命令或 `7615` Entry。下表的代表调用均来自当前接口文档，点击方法名可直接查看参数、返回字段和同类方法。
