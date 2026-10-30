@@ -1,12 +1,12 @@
 window.ELTDX_CATALOG = {
   "schema_version": 15,
   "release": {
-    "version": "3.3.0",
+    "version": "3.3.1",
     "status": "stable",
     "backend": "Rust native 7709 protocol and transport engine",
     "python_api": "compatible modular API and dataclasses",
     "native_commands": 25,
-    "mcp_tools": 23,
+    "mcp_tools": 32,
     "mcp_resources": 8,
     "native_extensions": 1,
     "pure_python_7709_fallback": false
