@@ -721,14 +721,16 @@ with ExTdxClient.from_best_host() as client:
 > 早期文档曾把它写成 `get_instrument_bars(market, code)`，那是**错的**——会把 market 当成
 > category，请以 `EXTENDED_MARKET.md` 的签名为准。
 
-> **不要用 `get_markets()` 做首条调用。** 实测所有内置主站都不回应 `0x23f4`，
+> **不要用 `get_markets()` 做首条调用。** 2026-10 采样的内置主站未回应 `0x23f4`，
 > 该调用只会阻塞到超时；这与 eltdx 无关——easy_tdx 1.20.7 在同一主机上同样超时，
 > 且两者请求帧逐字节相同。需要市场清单请直接用 `ExMarket` 枚举。
 > 证据链见 [EXTENDED_MARKET.md](EXTENDED_MARKET.md)。
 
-`ExTdxClient` 提供 `get_markets` / `get_instrument_count` / `get_instrument_info` / `get_instrument_quote` / `get_instrument_quote_list` / `get_instrument_bars` / `history_instrument_bars_range` / `minute_time` / `history_minute_time` / `transaction` / `history_transaction`；港股逐笔自动翻页。`ExMarket` 枚举描述支持的扩展市场。详见 [EXTENDED_MARKET.md](EXTENDED_MARKET.md)。
+`ExTdxClient` 提供 `get_markets` / `get_instrument_count` / `get_instrument_info` / `get_instrument_quote` / `get_instrument_quote_list` / `get_instrument_bars` / `get_history_instrument_bars_range` / `get_minute_time_data` / `get_history_minute_time_data` / `get_transaction_data` / `get_history_transaction_data`；均为单次请求，不自动翻页。港股分页封装在 `MacExClient.goods_transaction` / `goods_transaction_all`。`ExMarket` 枚举描述支持的扩展市场。完整参数、返回字段及分页规则见 [EX / MAC / MAC-EX 单页索引](extended/README.md)，通道概览见 [EXTENDED_MARKET.md](EXTENDED_MARKET.md)。
 
 ## MAC 协议 `eltdx.mac` 与 MAC-EX `eltdx.ex.MacExClient`
+
+`MacClient.get_transactions`（`0x122F`）已有真实秒字段，支持当日和历史日期，但可聚合多笔；标准 `0x0FC5 / 0x0FC6` 的分钟字段不代表整个库只有分钟。详见 [MAC 成交明细](extended/mac-get_transactions.md)。
 
 MAC 协议（0x1c 帧）覆盖批量报价、分类排行、复权 K 线、多日分时、逐笔、板块、集合竞价、异动等。
 
@@ -745,7 +747,7 @@ with MacClient() as client:
 > `get_stock_kline` 的前两个位置参数是 `market, code`，且周期枚举叫 `Period.DAILY`
 > （没有 `Period.DAY`）。
 
-MAC-EX（`from eltdx.ex import MacExClient`）在扩展行情连接上使用 MAC 风格命令（登录 `0x2454` + goods 系列）。详见 [EXTENDED_MARKET.md](EXTENDED_MARKET.md)。
+MAC-EX（`from eltdx.ex import MacExClient`）在扩展行情连接上使用 MAC 风格命令（登录 `0x2454` + goods 系列）。完整参数、返回字段及分页规则见 [EX / MAC / MAC-EX 单页索引](extended/README.md)，通道概览见 [EXTENDED_MARKET.md](EXTENDED_MARKET.md)。
 
 ## 本地行情文件 `eltdx.offline`
 

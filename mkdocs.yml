@@ -89,6 +89,9 @@ nav:
   - 7615 F10: F10_7615.md
   - 扩展能力:
       - 扩展行情与 MAC: EXTENDED_MARKET.md
+      - EX、MAC、MAC-EX 接口单页: extended/README.md
+      - 扩展枚举与字段位图: extended/枚举与字段位图.md
+      - 扩展返回模型: extended/返回模型.md
       - 本地行情文件: OFFLINE.md
       - 专业财报: FINANCIAL.md
   - Helpers: helpers/README.md
@@ -124,6 +127,7 @@ nav:
       - GitHub Pages: GITHUB_PAGES.md
 
 not_in_nav: |
+  extended/*.md
   methods/*.md
   helpers/*.md
   releases/*.md

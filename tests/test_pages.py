@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+import ast
+import inspect
 import json
+import re
 from collections import Counter
 from pathlib import Path
+
+import pytest
 
 from eltdx.protocol import COMMANDS
 
@@ -87,14 +92,14 @@ def test_pages_catalog_has_expected_public_interfaces() -> None:
     items = catalog["items"]
 
     assert catalog["schema_version"] == 15
-    assert len(items) == 93
+    assert len(items) == 121
     assert Counter(item["source"] for item in items) == {
         "7709": 26,
         "F10": 22,
         "Helper": 23,
-        "EX": 11,
-        "MAC": 6,
-        "MAC-EX": 5,
+        "EX": 12,
+        "MAC": 24,
+        "MAC-EX": 14,
     }
     assert len({item["id"] for item in items}) == len(items)
 
@@ -174,9 +179,9 @@ def test_pages_catalog_has_six_flat_source_menus() -> None:
         "7709": 26,
         "7615": 22,
         "helpers": 23,
-        "ex": 11,
-        "mac": 6,
-        "macex": 5,
+        "ex": 12,
+        "mac": 24,
+        "macex": 14,
     }
     expected_counts = {"7709": 26, "7615": 22, "helpers": 23}
     assert all(layer["description"] for layer in ordered_layers)
@@ -247,9 +252,9 @@ def test_pages_catalog_has_complete_function_menus() -> None:
         "auction-shortline": 8,
         "f10": 26,
         "common": 7,
-        "ex": 11,
-        "mac": 6,
-        "macex": 5,
+        "ex": 12,
+        "mac": 24,
+        "macex": 14,
     }
     assert assigned["f10-stock-info"] == "f10"
     assert assigned["f10-limit-board-ladder"] == "f10"
@@ -650,3 +655,190 @@ def test_local_factor_docs_explain_affine_coefficients() -> None:
     assert "docs/methods/7709-本地复权系数.md" in readme
     assert "`anchor_date`" in fields
     assert "`start_date`" in fields
+
+
+@pytest.mark.parametrize(
+    ("source", "class_name", "module_path", "prefix"),
+    [
+        ("MAC", "MacClient", "mac/client.py", "mac"),
+        ("EX", "ExTdxClient", "ex/client.py", "ex"),
+        ("MAC-EX", "MacExClient", "ex/mac_client.py", "macex"),
+    ],
+)
+def test_extended_catalog_covers_every_public_method(
+    source: str, class_name: str, module_path: str, prefix: str
+) -> None:
+    tree = ast.parse(
+        (REPO_ROOT / "src" / "eltdx" / module_path).read_text(encoding="utf-8")
+    )
+    client = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.ClassDef) and node.name == class_name
+    )
+    lifecycle = {
+        "from_best_host",
+        "ping_all",
+        "connect",
+        "close",
+        "disconnect",
+        "ensure_connected",
+        "refresh_hosts",
+    }
+    methods = {
+        node.name: node
+        for node in client.body
+        if isinstance(node, ast.FunctionDef)
+        and not node.name.startswith("_")
+        and not any(
+            isinstance(decorator, ast.Name) and decorator.id == "property"
+            for decorator in node.decorator_list
+        )
+    }
+    items = [item for item in _catalog()["items"] if item["source"] == source]
+    business = {
+        item["api"].split(".", 1)[1].split("(", 1)[0]: item
+        for item in items
+        if item["api"].startswith(f"{class_name}.")
+    }
+    assert set(business) == set(methods) - lifecycle
+    assert len({item["doc"] for item in items}) == len(items)
+    for name, item in business.items():
+        assert item["doc"] == f"extended/{prefix}-{name}.md"
+        detail = (REPO_ROOT / "docs" / item["doc"]).read_text(encoding="utf-8")
+        for heading in (
+            "调用签名",
+            "参数",
+            "使用示例",
+            "分页、单位与限制",
+            "返回字段",
+        ):
+            assert f"## {heading}" in detail, item["doc"]
+        args = re.sub(r"^self,?\s*|^cls,?\s*", "", ast.unparse(methods[name].args))
+        returns = ast.unparse(methods[name].returns)
+        assert f"{class_name}.{name}({args}) -> {returns}" in detail
+        for arg in methods[name].args.args[1:] + methods[name].args.kwonlyargs:
+            assert f"| `{arg.arg}` |" in detail, (name, arg.arg)
+    connection = next(item for item in items if item["id"] == f"{prefix}-connection")
+    connection_doc = (REPO_ROOT / "docs" / connection["doc"]).read_text(
+        encoding="utf-8"
+    )
+    for name in set(methods) & lifecycle:
+        assert f"{class_name}.{name}(" in connection_doc
+    for node in client.body:
+        if isinstance(node, ast.Assign) and isinstance(node.value, ast.Name):
+            if node.value.id in business:
+                detail = (
+                    REPO_ROOT / "docs" / business[node.value.id]["doc"]
+                ).read_text(encoding="utf-8")
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and not target.id.startswith("_"):
+                        assert f"{class_name}.{target.id}(" in detail
+
+
+def test_extended_python_examples_compile_and_bind_without_network() -> None:
+    from eltdx.ex import ExTdxClient, MacExClient
+    from eltdx.mac import MacClient
+
+    clients = {cls.__name__: cls for cls in (MacClient, ExTdxClient, MacExClient)}
+    for path in (REPO_ROOT / "docs" / "extended").glob("*.md"):
+        detail = path.read_text(encoding="utf-8")
+        for code in re.findall(r"```python\n(.*?)\n```", detail, re.DOTALL):
+            tree = ast.parse(code, filename=str(path))
+            compile(tree, str(path), "exec")
+            namespace: dict = {}
+            for node in tree.body:
+                if isinstance(node, (ast.Import, ast.ImportFrom)):
+                    exec(
+                        compile(
+                            ast.Module(body=[node], type_ignores=[]), str(path), "exec"
+                        ),
+                        namespace,
+                    )
+            for block in (node for node in tree.body if isinstance(node, ast.With)):
+                context = block.items[0].context_expr
+                assert isinstance(context, ast.Call) and isinstance(
+                    context.func, ast.Name
+                )
+                client = clients[context.func.id]
+                for call in ast.walk(block):
+                    if not isinstance(call, ast.Call) or not isinstance(
+                        call.func, ast.Attribute
+                    ):
+                        continue
+                    if (
+                        not isinstance(call.func.value, ast.Name)
+                        or call.func.value.id != "client"
+                    ):
+                        continue
+                    args = [
+                        eval(compile(ast.Expression(arg), str(path), "eval"), namespace)
+                        for arg in call.args
+                    ]
+                    kwargs = {
+                        keyword.arg: eval(
+                            compile(ast.Expression(keyword.value), str(path), "eval"),
+                            namespace,
+                        )
+                        for keyword in call.keywords
+                    }
+                    inspect.signature(getattr(client, call.func.attr)).bind(
+                        object(), *args, **kwargs
+                    )
+
+
+def test_extended_reference_lists_all_model_fields_and_enum_members() -> None:
+    from eltdx.mac import FieldBit, PresetField
+    from eltdx.mac import enums
+
+    model_doc = (REPO_ROOT / "docs" / "extended" / "返回模型.md").read_text(
+        encoding="utf-8"
+    )
+    for relative in ("mac/models.py", "ex/models.py"):
+        tree = ast.parse(
+            (REPO_ROOT / "src" / "eltdx" / relative).read_text(encoding="utf-8")
+        )
+        for model in (node for node in tree.body if isinstance(node, ast.ClassDef)):
+            section = model_doc.split(f"## {model.name}\n", 1)[1].split("\n## ", 1)[0]
+            for field in (
+                node for node in model.body if isinstance(node, ast.AnnAssign)
+            ):
+                assert f"| `{field.target.id}` |" in section, (
+                    model.name,
+                    field.target.id,
+                )
+    enum_doc = (REPO_ROOT / "docs" / "extended" / "枚举与字段位图.md").read_text(
+        encoding="utf-8"
+    )
+    for enum_name in (
+        "Period",
+        "Adjust",
+        "BoardType",
+        "Category",
+        "SortType",
+        "SortOrder",
+        "FilterType",
+        "ExMarket",
+        "ExBoardType",
+    ):
+        enum = getattr(enums, enum_name)
+        section = enum_doc.split(f"## {enum_name}\n", 1)[1].split("\n## ", 1)[0]
+        for name in enum.__members__:
+            assert f"`{name}`" in section, (enum_name, name)
+    for name in FieldBit.__members__:
+        assert f"`{name}`" in enum_doc, name
+    for name in PresetField.__members__:
+        assert f"| {name} |" in enum_doc, name
+
+
+def test_transaction_docs_distinguish_server_seconds_and_aggregation() -> None:
+    docs = REPO_ROOT / "docs"
+    mac = (docs / "extended" / "mac-get_transactions.md").read_text(encoding="utf-8")
+    assert "0x122F" in mac
+    assert "uint32 当日秒数" in mac
+    assert "聚合成交明细" in mac
+    assert "不等于 Level-2" in mac
+    assert "2026-10-30" in mac and "13:51:09" in mac
+    for name in ("7709-当日成交明细.md", "7709-历史成交明细.md"):
+        text = (docs / "methods" / name).read_text(encoding="utf-8")
+        assert "../extended/mac-get_transactions.md" in text

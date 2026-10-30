@@ -1,5 +1,7 @@
 # 字段手册
 
+EX / MAC / MAC-EX 的完整返回字段另见 [扩展返回模型](extended/返回模型.md) 和 [字段位图与枚举](extended/枚举与字段位图.md)。这里的标准 7709 单位约定不直接套用到扩展市场。
+
 这份文档解释常用返回模型的字段含义。按调用方法查参数和返回字段时看 [METHOD_REFERENCE.md](METHOD_REFERENCE.md)。底层协议字段和命令号见 [COMMANDS_7709.md](COMMANDS_7709.md)，历史字段对照见 [FIELD_MIGRATION.md](FIELD_MIGRATION.md)。
 
 ## 通用约定

@@ -1,5 +1,7 @@
 # 调用方法与解析字段手册
 
+本文的完整代码、market、单位等通用约定针对标准 `TdxClient`。独立的 `MacClient` / `ExTdxClient` / `MacExClient` 使用各自参数与市场编号，完整入口见 [扩展接口单页索引](extended/README.md)，字段见 [扩展返回模型](extended/返回模型.md)。
+
 想快速知道某个方法怎么传参、底层走哪个接口、返回对象里有哪些常用字段，就看这里。
 
 更底层的命令 payload、offset 和原始字段说明见 [COMMANDS_7709.md](COMMANDS_7709.md)。只想查模型字段总表时看 [FIELD_REFERENCE.md](FIELD_REFERENCE.md)。
