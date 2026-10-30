@@ -1,6 +1,6 @@
 # 批量快照与财务：缺失代码处理
 
-本页适用于 main 分支上的 `client.quotes.get_snapshots()`（7709 `0x054c`）和 `client.corporate.finance_batch()`（7709 `0x0010`）。**这些修复与 `on_missing` 参数尚未包含在 PyPI v3.3.1 中。**从源码安装 main 后使用，或等待后续版本发布。#31 合入的全市场资讯方法也在 main 上，见 [市场资讯](methods/F10-市场资讯.md)。
+本页适用于 v3.3.2 起的 `client.quotes.get_snapshots()`（7709 `0x054c`）和 `client.corporate.finance_batch()`（7709 `0x0010`）。**这些修复与 `on_missing` 参数从 v3.3.2 起提供。**升级到 v3.3.2 或更新版本后使用。#31 合入的全市场资讯方法也随 v3.3.2 发布，见 [市场资讯](methods/F10-市场资讯.md)。
 
 ## 默认严格模式
 

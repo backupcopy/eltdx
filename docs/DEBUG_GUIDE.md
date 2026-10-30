@@ -127,4 +127,4 @@ fork 子进程复用父进程 client 会立即收到错误：
 
 ## 混批无数据代码导致快照 / 财务异常
 
-`0x054c` 的 marker not found 和 `0x0010` 的 invalid record 可能由混入主站不提供数据的代码触发。main 已加强记录校验并加入有界二分恢复；默认报 `MissingCodesError` 列出确认缺失代码。需要部分结果时显式使用 `on_missing="skip"` 并处理 `MissingCodesWarning`。损坏单只、网络超时和预算耗尽仍报错。详细示例与源码安装版本说明见 [批量缺失处理](BATCH_MISSING.md)。
+`0x054c` 的 marker not found 和 `0x0010` 的 invalid record 可能由混入主站不提供数据的代码触发。v3.3.2 已加强记录校验并加入有界二分恢复；默认报 `MissingCodesError` 列出确认缺失代码。需要部分结果时显式使用 `on_missing="skip"` 并处理 `MissingCodesWarning`。损坏单只、网络超时和预算耗尽仍报错。详细示例与版本说明见 [批量缺失处理](BATCH_MISSING.md)。

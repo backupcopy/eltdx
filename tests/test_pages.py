@@ -14,7 +14,7 @@ from eltdx.protocol import COMMANDS
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = REPO_ROOT / "docs" / "assets" / "interface-catalog-data.js"
-README_BANNER_RELATIVE = ".github/assets/eltdx-readme-banner-v3.3.1.png"
+README_BANNER_RELATIVE = ".github/assets/eltdx-readme-banner-v3.3.2.png"
 README_BANNER_PATH = REPO_ROOT / README_BANNER_RELATIVE
 SPONSOR_BANNER_PATH = REPO_ROOT / "docs" / "assets" / "astlane-sponsor.svg"
 
@@ -144,7 +144,7 @@ def test_market_news_catalog_entries_link_complete_individual_docs() -> None:
         assert f"client.f10.{method}(" in text
         assert item["return_model"] in text
         assert f'"method": "f10.{method}"' in text
-        assert "尚未包含于 PyPI v3.3.1" in text
+        assert "自 v3.3.2 起可用" in text
     assert items["f10-news-channels"]["kind"] == "静态枚举"
 
 

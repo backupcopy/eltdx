@@ -19,7 +19,7 @@
 </p>
 
 <a href="https://electkismet.github.io/eltdx/">
-  <img alt="eltdx 接口目录预览" src=".github/assets/eltdx-readme-banner-v3.3.1.png">
+  <img alt="eltdx 接口目录预览" src=".github/assets/eltdx-readme-banner-v3.3.2.png">
 </a>
 
 <p align="center">
@@ -39,7 +39,7 @@
 
 感谢 [injoyai/tdx](https://github.com/injoyai/tdx) 及 [rainx/pytdx](https://github.com/rainx/pytdx) 的启发。
 
-main 分支现已补充全市场资讯及批量缺失代码处理，尚未包含于 PyPI v3.3.1。详见 [未发布变更](docs/CHANGELOG.md) 与 [批量缺失处理](docs/BATCH_MISSING.md)。
+v3.3.2 新增全市场资讯及批量缺失代码处理。详见 [发布说明](docs/releases/v3.3.2.md) 与 [批量缺失处理](docs/BATCH_MISSING.md)。
 
 ## 功能地图
 
@@ -430,7 +430,7 @@ python scripts/smoke/export_auction_925_daily.py --code sz000001 --start 2026-04
 | 底层协议和 F10 Entry | [7709 命令](docs/COMMANDS_7709.md) · [7615 F10](docs/F10_7615.md) |
 | 连接、测速、并发和故障排查 | [调试指南](docs/DEBUG_GUIDE.md) · [架构](docs/ARCHITECTURE.md) |
 | MCP 安装、工具和资源 | [MCP 文档](docs/MCP.md) |
-| 当前版本、变更和旧 API 迁移 | [v3.3.1](docs/releases/v3.3.1.md) · [变更记录](docs/CHANGELOG.md) · [迁移说明](docs/MIGRATION_FROM_OLD.md) |
+| 当前版本、变更和旧 API 迁移 | [v3.3.2](docs/releases/v3.3.2.md) · [变更记录](docs/CHANGELOG.md) · [迁移说明](docs/MIGRATION_FROM_OLD.md) |
 
 ## 常用问题
 
