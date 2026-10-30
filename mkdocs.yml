@@ -79,6 +79,7 @@ nav:
       - v3.0.2 发布说明: releases/v3.0.2.md
       - v3.0.1 发布说明: releases/v3.0.1.md
       - v3.0.0 发布说明: releases/v3.0.0.md
+      - 批量缺失处理: BATCH_MISSING.md
       - 调用方法: METHOD_REFERENCE.md
       - API 参考: API_REFERENCE.md
       - 调用示例: EXAMPLES.md

@@ -1,12 +1,12 @@
 window.ELTDX_CATALOG = {
-  "schema_version": 15,
+  "schema_version": 16,
   "release": {
     "version": "3.3.1",
     "status": "stable",
     "backend": "Rust native 7709 protocol and transport engine",
     "python_api": "compatible modular API and dataclasses",
     "native_commands": 25,
-    "mcp_tools": 32,
+    "mcp_tools": 35,
     "mcp_resources": 8,
     "native_extensions": 1,
     "pure_python_7709_fallback": false
@@ -26,7 +26,7 @@ window.ELTDX_CATALOG = {
         "label": "7615 原生 Entry 接口",
         "tag_label": "7615 原生 Entry",
         "stat_label": "7615 原生 Entry 接口",
-        "description": "22 个 7615 原生 Entry 接口，对应 TQLEX/F10 的 HTTP Entry 与功能调用。",
+        "description": "25 个 7615 F10 调用入口，涵盖 HTTP Entry 封装与静态资讯频道枚举。",
         "source": "F10"
       },
       {
@@ -1144,6 +1144,59 @@ window.ELTDX_CATALOG = {
       "summary": "返回题材内股票的财务、市值和区间涨幅排名，用于比较同题材个股。",
       "return_model": "F10Response",
       "doc": "methods/F10-题材内对比.md"
+    },
+    {
+      "id": "f10-market-news",
+      "title": "首页要闻",
+      "source": "F10",
+      "category": "资讯公告",
+      "api": "client.f10.market_news()",
+      "aliases": [
+        "market_news",
+        "要闻速递",
+        "滚动资讯",
+        "NewsHomeTab"
+      ],
+      "protocol": "CWServ.tdxi_zxxwsy",
+      "kind": "Entry 封装",
+      "summary": "首页要闻、滚动资讯和今日焦点，支持分页。",
+      "return_model": "F10Response",
+      "doc": "methods/F10-首页要闻.md"
+    },
+    {
+      "id": "f10-channel-news",
+      "title": "频道资讯",
+      "source": "F10",
+      "category": "资讯公告",
+      "api": "client.f10.channel_news()",
+      "aliases": [
+        "channel_news",
+        "财经要闻",
+        "NewsChannel",
+        "资讯频道"
+      ],
+      "protocol": "CWServ.tdxi_zxxwnews",
+      "kind": "Entry 封装",
+      "summary": "按 84 个频道号查询全市场资讯，支持分页和关键词参数。",
+      "return_model": "F10Response",
+      "doc": "methods/F10-频道资讯.md"
+    },
+    {
+      "id": "f10-news-channels",
+      "title": "资讯频道列表",
+      "source": "F10",
+      "category": "资讯公告",
+      "api": "client.f10.news_channels()",
+      "aliases": [
+        "news_channels",
+        "频道号",
+        "NEWS_CHANNEL_LABELS"
+      ],
+      "protocol": "—（静态枚举，不发网络请求）",
+      "kind": "静态枚举",
+      "summary": "返回 84 个资讯频道号与名称，供 channel_news 查询使用。",
+      "return_model": "list[tuple[int, str]]",
+      "doc": "methods/F10-资讯频道列表.md"
     },
     {
       "id": "f10-company-news",

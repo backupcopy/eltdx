@@ -18,6 +18,61 @@ from eltdx.protocol.unit import (
 )
 
 
+def _parse_batch_payload(command, payload, codes):
+    from eltdx.protocol import ResponseFrame, parse_command_response
+
+    frame = ResponseFrame(1, 1, command, len(payload), len(payload), payload, b"")
+    return parse_command_response(command, frame, {"codes": codes, "include_raw": True})
+
+
+@pytest.mark.parametrize(
+    ("market", "code", "requested", "count"),
+    [
+        (0, b"\0" * 6, ["sh601059"], 1),
+        (1, b'tyle["', ["sh601059"], 1),
+        (32, b"600519", ["sh600519"], 1),
+        (1, b"600519", ["sh601059"], 1),
+        (0, b"000001", ["sh000001"], 1),
+        (1, b"600519", ["sh600519"], 2),
+        (1, b"600519", ["sh600519", "sh601059"], 2),
+    ],
+)
+def test_finance_rejects_missing_garbage_foreign_and_duplicate_records(market, code, requested, count):
+    import struct
+
+    record = bytes([market]) + code + bytes(136)
+    with pytest.raises(ProtocolError):
+        _parse_batch_payload(0x0010, struct.pack("<H", count) + record * count, requested)
+
+
+def test_snapshot_partial_reply_must_not_silently_drop_requested_tail():
+    from pathlib import Path
+    from eltdx.protocol import decode_response
+
+    raw = Path(__file__).parent / "fixtures/7709/snapshots/normal/response.bin"
+    payload = decode_response(raw.read_bytes()).data
+    with pytest.raises(ProtocolError, match="count"):
+        _parse_batch_payload(0x054C, payload, ["sz000001", "sh601059"])
+
+
+def test_snapshot_valid_foreign_single_is_distinguished_from_garbage():
+    from pathlib import Path
+    from eltdx.protocol import decode_response
+
+    raw = Path(__file__).parent / "fixtures/7709/snapshots/normal/response.bin"
+    payload = decode_response(raw.read_bytes()).data
+    with pytest.raises(ProtocolError, match="snapshot missing requested record:"):
+        _parse_batch_payload(0x054C, payload, ["sh600002"])
+    with pytest.raises(ProtocolError) as caught:
+        _parse_batch_payload(0x054C, payload[:13], ["sh600002"])
+    assert "snapshot missing requested record:" not in str(caught.value)
+
+
+def test_snapshot_zero_count_with_garbage_tail_is_not_an_empty_response():
+    with pytest.raises(ProtocolError, match="trailing"):
+        _parse_batch_payload(0x054C, b"\0\0\0\0garbage-record-body", ["sh600002"])
+
+
 @pytest.mark.parametrize(
     ("code", "expected"),
     [

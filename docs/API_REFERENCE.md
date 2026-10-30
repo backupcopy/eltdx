@@ -275,7 +275,10 @@ client.codes.all_a_shares()
 
 ## `client.quotes`
 
-### `client.quotes.get_snapshots(codes)`
+### `client.quotes.get_snapshots(codes, *, on_missing="raise")`
+
+main 新增 `on_missing`：默认 `"raise"`，确认缺失时抛 `MissingCodesError`；`"skip"` 返回有效记录并发出 `MissingCodesWarning`。最多追加 32 次二分恢复请求，损坏单只 / 超时仍报错；财务重组结果的 `raw_payload` 为空。尚未包含于 PyPI v3.3.1，详见 [批量缺失处理](BATCH_MISSING.md)。
+
 
 按指定代码列表查询当前行情，包含买一 / 卖一盘口。需要完整行情和五档盘口时，使用 `client.helpers.full_quotes()`；单独查询五档数据时，使用 `client.quotes.get_depth()`。
 
@@ -552,7 +555,10 @@ client.corporate.adjustment_factors(
 
 应用到本地不复权 K 线时，必须以第一根 K 线日期设置 `start_date`；前复权选择第一条满足 `bar_date < factor.date` 的系数，后复权选择最后一条满足 `factor.date <= bar_date` 的系数，再计算 `round(raw * scale + offset, 2)`。本地计算与服务端复权价格可能存在差异，已知样本中约为 `0.01～0.02` 元。直接获取服务端复权 K 线时，使用 `client.bars.get(..., adjust="none" / "qfq" / "hfq")`。
 
-### `finance_batch(codes, fields=None, include_raw=False)`
+### `finance_batch(codes, fields=None, *, include_raw=False, on_missing="raise")`
+
+main 新增 `on_missing`：默认 `"raise"`，确认缺失时抛 `MissingCodesError`；`"skip"` 返回有效记录并发出 `MissingCodesWarning`。最多追加 32 次二分恢复请求，损坏单只 / 超时仍报错；财务重组结果的 `raw_payload` 为空。尚未包含于 PyPI v3.3.1，详见 [批量缺失处理](BATCH_MISSING.md)。
+
 
 批量查询财务字段，对应 `0x0010`。`fields` 只过滤本地返回字段，底层仍请求完整记录。
 

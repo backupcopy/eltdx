@@ -235,7 +235,10 @@ client.codes.a_share_count("sz")
 
 <a id="method-quotes-snapshots"></a>
 
-### `client.quotes.get_snapshots(codes)`
+### `client.quotes.get_snapshots(codes, *, on_missing="raise")`
+
+main 新增 `on_missing`：默认 `"raise"`，确认缺失时抛 `MissingCodesError`；`"skip"` 返回有效记录并发出 `MissingCodesWarning`。最多追加 32 次二分恢复请求，损坏单只 / 超时仍报错；财务重组结果的 `raw_payload` 为空。尚未包含于 PyPI v3.3.1，详见 [批量缺失处理](BATCH_MISSING.md)。
+
 
 按指定代码列表查询当前行情，包含买一 / 卖一盘口。需要完整五档时，使用 `client.helpers.full_quotes()`。
 
@@ -932,7 +935,10 @@ batch = client.money_flow.history(["sz000001", "sh600000"], days=20, batch_size=
 
 <a id="method-corporate-finance-batch"></a>
 
-### `client.corporate.finance_batch(codes, fields=None)`
+### `client.corporate.finance_batch(codes, fields=None, *, include_raw=False, on_missing="raise")`
+
+main 新增 `on_missing`：默认 `"raise"`，确认缺失时抛 `MissingCodesError`；`"skip"` 返回有效记录并发出 `MissingCodesWarning`。最多追加 32 次二分恢复请求，损坏单只 / 超时仍报错；财务重组结果的 `raw_payload` 为空。尚未包含于 PyPI v3.3.1，详见 [批量缺失处理](BATCH_MISSING.md)。
+
 
 批量查询财务基础信息，对应 `0x0010`。
 

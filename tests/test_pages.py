@@ -91,11 +91,11 @@ def test_pages_catalog_has_expected_public_interfaces() -> None:
     catalog = _catalog()
     items = catalog["items"]
 
-    assert catalog["schema_version"] == 15
-    assert len(items) == 121
+    assert catalog["schema_version"] == 16
+    assert len(items) == 124
     assert Counter(item["source"] for item in items) == {
         "7709": 26,
-        "F10": 22,
+        "F10": 25,
         "Helper": 23,
         "EX": 12,
         "MAC": 24,
@@ -130,6 +130,31 @@ def test_catalog_labels_every_multi_call_entry() -> None:
     ]
 
 
+def test_market_news_catalog_entries_link_complete_individual_docs() -> None:
+    catalog = _catalog()
+    assert catalog["release"]["mcp_tools"] == 35
+    items = {item["id"]: item for item in catalog["items"]}
+    for item_id, method in (
+        ("f10-market-news", "market_news"),
+        ("f10-channel-news", "channel_news"),
+        ("f10-news-channels", "news_channels"),
+    ):
+        item = items[item_id]
+        text = (REPO_ROOT / "docs" / item["doc"]).read_text(encoding="utf-8")
+        assert f"client.f10.{method}(" in text
+        assert item["return_model"] in text
+        assert f'"method": "f10.{method}"' in text
+        assert "尚未包含于 PyPI v3.3.1" in text
+    assert items["f10-news-channels"]["kind"] == "静态枚举"
+
+
+def test_batch_missing_policy_is_documented_on_both_api_pages() -> None:
+    for name in ("7709-批量快照.md", "7709-财务基础信息.md"):
+        text = (REPO_ROOT / "docs" / "methods" / name).read_text(encoding="utf-8")
+        for term in ('on_missing="skip"', "MissingCodesError", "MissingCodesWarning", "BATCH_MISSING.md"):
+            assert term in text
+
+
 def test_multi_call_detail_docs_mirror_catalog_roles() -> None:
     for item in _catalog()["items"]:
         calls = item.get("calls")
@@ -155,7 +180,7 @@ hide:
 [← 返回接口目录](../index.md){ .interface-detail-back }
 """
 
-    assert len(detail_docs) == 71
+    assert len(detail_docs) == 74
     for relative_path in detail_docs:
         detail = (REPO_ROOT / "docs" / relative_path).read_text(encoding="utf-8")
         assert detail.startswith(expected_header), relative_path
@@ -177,13 +202,13 @@ def test_pages_catalog_has_six_flat_source_menus() -> None:
     ]
     assert Counter(layer_id for layer_id, _ in assignments.values()) == {
         "7709": 26,
-        "7615": 22,
+        "7615": 25,
         "helpers": 23,
         "ex": 12,
         "mac": 24,
         "macex": 14,
     }
-    expected_counts = {"7709": 26, "7615": 22, "helpers": 23}
+    expected_counts = {"7709": 26, "7615": 25, "helpers": 23}
     assert all(layer["description"] for layer in ordered_layers)
     assert all(
         layer["description"].startswith(f"{expected_counts[layer['id']]} 个")
@@ -250,7 +275,7 @@ def test_pages_catalog_has_complete_function_menus() -> None:
         "history": 4,
         "bars": 4,
         "auction-shortline": 8,
-        "f10": 26,
+        "f10": 29,
         "common": 7,
         "ex": 12,
         "mac": 24,

@@ -39,6 +39,8 @@
 
 感谢 [injoyai/tdx](https://github.com/injoyai/tdx) 及 [rainx/pytdx](https://github.com/rainx/pytdx) 的启发。
 
+main 分支现已补充全市场资讯及批量缺失代码处理，尚未包含于 PyPI v3.3.1。详见 [未发布变更](docs/CHANGELOG.md) 与 [批量缺失处理](docs/BATCH_MISSING.md)。
+
 ## 功能地图
 
 eltdx 默认按“想拿什么数据”组织入口。普通调用优先使用模块化 API 和 Helpers；需要核对底层字段时，再对照 `7709` 命令或 `7615` Entry。下表的代表调用均来自当前接口文档，点击方法名可直接查看参数、返回字段和同类方法。
@@ -70,6 +72,7 @@ eltdx 默认按“想拿什么数据”组织入口。普通调用优先使用�
 | 财务基础 | 流通/总股本、EPS、资产、负债、收入和利润 | [`client.corporate.finance_batch()`](docs/methods/7709-财务基础信息.md) | `7709 原生协议` |
 | 本地复权系数 | 基于权息记录为已有不复权 K 线提供本地计算和审计系数 | [`client.corporate.adjustment_factors()`](docs/methods/7709-本地复权系数.md) | `0x000f 本地计算` |
 | 特殊品种限制 | 特殊品种涨跌停限制表 | [`client.limits.special()`](docs/methods/7709-特殊品种涨跌停限制.md) | `7709 原生协议` |
+| 市场资讯 | 首页要闻、滚动资讯、84 个资讯频道及分页 | [`client.f10.market_news()`](docs/methods/F10-首页要闻.md) / [`client.f10.channel_news()`](docs/methods/F10-频道资讯.md) / [`client.f10.news_channels()`](docs/methods/F10-资讯频道列表.md) | `7615 Entry` + 静态枚举 |
 | F10 公司概况 | 发行上市信息、上市日期、发行价、募资额和承销商 | [`client.f10.company_profile()`](docs/methods/F10-公司概况.md) | `7615 原生 Entry` |
 | 个股概念 | 某只股票所属的热点题材和入选原因 | [`client.helpers.stock_topics()`](docs/helpers/个股概念板块.md) | `7615` + `Helpers 封装` |
 | 股票信息汇总 | 行情、证券名称、股本、市值和换手率合并表 | [`client.helpers.stock_profile_table()`](docs/helpers/股票信息汇总.md) | `7709` + `Helpers 组合` |
